@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Chatbot</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet" />
+    <style>
+        .vjs-control-bar {
+            justify-content: center;
+            background: transparent !important;
+        }
+        .vjs-control:not(.vjs-play-control) {
+            display: none !important;
+        }
+        .video-js .vjs-control-bar {
+            bottom: 50% !important;
+            transform: translateY(-50%);
+        }
+        .vjs-play-control {
+            background: red !important;
+        }
+        
+        .video-card {
+            border-radius: 25px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row justify-content-center mt-5 gap-3">
+            <div class="col-12 col-lg-6 d-flex flex-column justify-content-center align-items-center">
+                <video id="my-video" class="video-js" controls preload="auto" width="640" height="400">
+                    <!-- Video source will be set dynamically -->
+                </video>
+                <div class="container-fluid mt-3">
+                    <div class="row flex-column align-items-center">
+                        <div class="col-8">
+                            <h4 class="text-center">Just Say Below Options to Activate the Videos</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item">Show Dashboard</li>
+                                <li class="list-group-item">Show Demo</li>
+                                <li class="list-group-item">What Is Video Chatbot?</li>
+                                <li class="list-group-item">What Is Website Chatbot?</li>
+                                <li class="list-group-item">How Video Chatbot work?</li>
+                                <li class="list-group-item">What Is WhatsApp Chatbot?</li>
+                                <li class="list-group-item">Welcome</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+
+        const videos = [
+            "https://createdwithcode.github.io/video/starter.mp4",  // Initial video
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/dashboard.mp4",  // Dashboard video
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/demo.mp4",       // Demo video
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/benefitvideochatbot.mp4",  // What is Video Chatbot? (Updated URL)
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/videochatbot.mp4", // What is Website Chatbot?
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/useofthischatbot.mp4", // How Video Chatbot work?
+            "https://raw.githubusercontent.com/kpmobilephoto/temp/main/whatsappchatbot.mp4", // What is WhatsApp Chatbot?
+            "https://createdwithcode.github.io/video/welcome.mp4"                  // Welcome video
+        ];
+
+        $(document).ready(function() {
+            var player = videojs('my-video');
+            player.src(videos[0]);  // Set initial video source
+            player.load();
+            
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous = true;
+            recognition.lang = 'en-US';
+            recognition.start();  // Start recognition automatically
+
+            recognition.onresult = function(event) {
+                var result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+                console.log("Recognized Speech: ", result);
+                
+                function changeVideoSource(newSrc) {
+                    player.pause();
+                    player.src(newSrc);
+                    player.load();
+                    player.play();
+                }
+
+                // Loosen the match for longer phrases
+                if (/show dashboard/.test(result)) {
+                    changeVideoSource(videos[1]);
+                } else if (/show demo/.test(result)) {
+                    changeVideoSource(videos[2]);
+                } else if (/video chatbot/.test(result) || /video chat boat/.test(result)|| /video chat bought/.test(result)) {
+        changeVideoSource(videos[3]);  // For "What is Video Chatbot?"
+    } else if (/website chatbot/.test(result) || /website chat boat/.test(result)|| /website chat bought/.test(result)) {
+        changeVideoSource(videos[4]);  // For "What is Website Chatbot?"
+    } else if (/how video chatbot/.test(result) || /how video chat boat/.test(result)|| /how video chat bought/.test(result)) {
+        changeVideoSource(videos[5]);  // For "How Video Chatbot works?"
+                } else if (/whatsapp/.test(result) && (/chatbot/.test(result) || /chat boat/.test(result)|| /chat bought/.test(result))) { // Handle WhatsApp chatbot match and chat boat misinterpretation
+                    changeVideoSource(videos[6]);
+                } else if (/welcome/.test(result)) {
+                    changeVideoSource(videos[7]);
+                } else {
+                    console.log("No match found for: ", result);  // Log when no match is found
+                }
+            };
+
+            recognition.onstart = function() {
+                console.log("Voice recognition started.");
+            };
+
+            recognition.onend = function() {
+                console.log("Voice recognition ended. Restarting...");
+                recognition.start();  // Automatically restart when it stops
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Error occurred in recognition: " + event.error);
+            };
+        });
+
+    </script>
+</body>
+</html>
